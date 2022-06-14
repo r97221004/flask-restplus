@@ -1,8 +1,11 @@
-from flask import Flask
+from flask import Flask, Blueprint
 from flask_restplus import Api, Resource, fields
 
 app = Flask(__name__)
-api = Api(app)  # , doc=False
+blueprint = Blueprint("api", __name__, url_prefix="/api")
+api = Api(blueprint, doc="/documentation")  # , doc=False
+
+app.register_blueprint(blueprint)
 
 # app.config["SWAGGER_UI_JSONEDITOR"] = True
 
