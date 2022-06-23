@@ -1,5 +1,5 @@
-from flask import Flask, Blueprint
-from flask_restplus import Api, Resource, fields
+from flask import Flask, Blueprint, request
+from flask_restplus import Api, Resource, fields, reqparse
 
 app = Flask(__name__)
 blueprint = Blueprint("api", __name__, url_prefix="/api")
@@ -21,12 +21,31 @@ languages.append(python)
 class Language(Resource):
 
     @api.marshal_with(a_language, envelope="the_data")
+    @api.response(201, 'Success')
+    @api.response(400, 'Validation Error')
     def get(self):
         return languages
 
     @api.expect(a_language)
+    @api.response(201, "Success")
     def post(self):
-        new_language = api.payload
+
+        parser = reqparse.RequestParser()
+        parser.add_argument("language", type=str,
+                            required=True, help="language required")
+        data = parser.parse_args()
+        # print(data)
+        new_language = data
         new_language["id"] = len(languages) + 1
         languages.append(new_language)
         return {"result": "Language added"}, 201
+
+
+@api.route("/test")
+class Test(Resource):
+
+    def post(self):
+        data = request.get_json(force=True)
+        print(data)
+
+        return {"Hello": "World"}
